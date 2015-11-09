@@ -5,11 +5,11 @@ import urllib.parse
 import json
 from http.server import BaseHTTPRequestHandler
 
-from medium import dummy
+import medium
 
-from medium.exceptions import BotException, CommandException
+from lib.roark.exceptions import BotException, CommandException, AccessException
 
-class RestAPIHandler(BaseHTTPRequestHandler, dummy.dummy):
+class RestAPIHandler(BaseHTTPRequestHandler, medium.dummy.dummy):
     error_content_type = 'text/json;charset=utf-8'
     error_message_format = json.dumps({'code': '%(code)d',
                                        'explanation': '%(explain)s',
@@ -21,7 +21,7 @@ class RestAPIHandler(BaseHTTPRequestHandler, dummy.dummy):
         
         if '?' in self.path:
             (params['path'], params['query']) = self.path.split('?')[:2]
-            params['path'] = params['path'].replace('/', '')
+            params['path'] = params['path'].strip('/').split('/')
             params['query'] = urllib.parse.parse_qs(params['query'],
                                                   keep_blank_values=True)
             for key in params['query']:
@@ -42,12 +42,14 @@ class RestAPIHandler(BaseHTTPRequestHandler, dummy.dummy):
                 
         params['query']['command'] = self.command
         
+        self.check_access(params['query']['access_token'])
+        
         return params
         
     def _get_results(self, path, query):
-        if path == '':
-            return {'bot_count': len(self.roark_status['registered_bot']),
-                    'bot_list': list(self.roark_status['registered_bot'].keys()),
+        if path[0] == '':
+            return {'bot_count': len(self.bot_list),
+                    'bot_list': list(self.bot_list.keys()),
                     'started_date_utc': self.roark_status['started_date_utc'].strftime('%Y-%m-%dT%H:%M:%S.%f')}
         else:
             return self.query_bot(path=path,
@@ -75,16 +77,18 @@ class RestAPIHandler(BaseHTTPRequestHandler, dummy.dummy):
         try:
             params = self._parse_params()
             response = self._get_results(params['path'], params['query'])
+        except AccessException as e:
+            self.send_error(code=401,
+                            message=e.message)
+            return False
         except BotException as e:
             self.send_error(code=404,
                             message=e.message)
-            self.log_error(e.message)
             return False
         except CommandException as e:
             self.send_error(code=400,
                             message=e.message,
                             explain=e.explanation)
-            self.log_error(explain=e.explanation)
             return False
         else:
             return self.do_HEAD(params=params, response=response)

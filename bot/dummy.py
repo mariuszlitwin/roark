@@ -5,5 +5,6 @@ class dummy:
     def __init__(self):
         pass
         
-    def request(self, query):
-        return query;
+    def request(self, path, query):
+        query['path'] = path
+        return query

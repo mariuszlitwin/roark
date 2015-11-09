@@ -20,8 +20,9 @@ class http(bot.dummy.dummy):
                                                  headers = query.get('headers', None))
                 p_agent_request = self.session.prepare_request(agent_request)
                 resp = self.session.send(p_agent_request)
-                response = {'status_code': resp.status_code,
-                            'content': resp.text}
+                response = {'status_code': resp.status_code}
+                if 'no_content' not in query:
+                    response['content'] = resp.text
             elif len(path) == 1 and query['command'] == 'GET':
                 response = {'cookies': self.session.cookies.get_dict()}
             else:

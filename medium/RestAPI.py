@@ -17,11 +17,11 @@ class RestAPIHandler(BaseHTTPRequestHandler, dummy.dummy):
                                                                   indent=4)
 
     def _parse_params(self):
-        params = {'command': self.command}
+        params = dict()
         
         if '?' in self.path:
             (params['path'], params['query']) = self.path.split('?')[:2]
-            params['path'] = params['path'].lstrip('/')
+            params['path'] = params['path'].replace('/', '')
             params['query'] = urllib.parse.parse_qs(params['query'],
                                                   keep_blank_values=True)
             for key in params['query']:
@@ -39,16 +39,16 @@ class RestAPIHandler(BaseHTTPRequestHandler, dummy.dummy):
                 params['query'].update(payload)
             except ValueError as e:
                 raise CommandException('Payload is not valid JSON document', str(e))
-
+                
+        params['query']['command'] = self.command
+        
         return params
         
     def _get_results(self, path, query):
-        global roark_status
-    
         if path == '':
-            return {'bot_count': len(self._registered_bot),
-                    'bot_list': self._registered_bot.keys(),
-                    'started_date_utc': roark_status['started_date_utc']}
+            return {'bot_count': len(self.roark_status['registered_bot']),
+                    'bot_list': list(self.roark_status['registered_bot'].keys()),
+                    'started_date_utc': self.roark_status['started_date_utc'].strftime('%Y-%m-%dT%H:%M:%S.%f')}
         else:
             return self.query_bot(path=path,
                                   query=query)
@@ -72,24 +72,22 @@ class RestAPIHandler(BaseHTTPRequestHandler, dummy.dummy):
         return True
  
     def do_POST(self):
-        print(dir(self))
-        #try:
-        #    params = self._parse_params()
-        #    response = self._get_results(params['path'], params['query'])
-        #except BotException as e:
-        #    self.send_error(code=404,
-        #                    message=e.message,
-        #                    explain=e.explanation)
-        #    self.log_error(e.explanation)
-        #    return False
-        #except CommandException as e:
-        #    self.send_error(code=400,
-        #                    message=e.message,
-        #                    explain=e.explanation)
-        #    self.log_error(explain=e.explanation)
-        #    return False
-        #else:
-        #    return self.do_HEAD(params=params, response=params)
+        try:
+            params = self._parse_params()
+            response = self._get_results(params['path'], params['query'])
+        except BotException as e:
+            self.send_error(code=404,
+                            message=e.message)
+            self.log_error(e.message)
+            return False
+        except CommandException as e:
+            self.send_error(code=400,
+                            message=e.message,
+                            explain=e.explanation)
+            self.log_error(explain=e.explanation)
+            return False
+        else:
+            return self.do_HEAD(params=params, response=response)
             
     def do_GET(self):
         return self.do_POST()

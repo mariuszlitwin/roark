@@ -4,7 +4,7 @@
 from datetime import datetime
 from http.server import HTTPServer
 
-import lib.roark.hypervisor as roark_hypervisor
+import oth.roark.hypervisor as roark_hypervisor
 
 from medium.dummy import dummy
 from medium.RestAPI import RestAPIHandler

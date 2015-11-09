@@ -4,7 +4,7 @@
 import time
 import hashlib
 
-import lib.roark.exceptions 
+import oth.roark.exceptions 
 
 class dummy:
     roark_status = dict()
@@ -18,11 +18,11 @@ class dummy:
             m.update(bytes(int(time.time())))
 
             if m.hexdigest() != received_access_token:
-                raise lib.roark.exceptions.AccessException('Access Token mismatch! Check your local time settings and used api-key.')
+                raise oth.roark.exceptions.AccessException('Access Token mismatch! Check your local time settings and used api-key.')
 
     def query_bot(self, path, query):
         if path[0] in self.bot_list:
             return self.bot_list[path[0]].request(path, query)
         else:
-            raise lib.roark.exceptions.BotNotFoundException('No bot registered under {path}'.format(path=path))
+            raise oth.roark.exceptions.BotNotFoundException('No bot registered under {path}'.format(path=path))
             return None

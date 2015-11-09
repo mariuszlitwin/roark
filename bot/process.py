@@ -5,7 +5,7 @@ import shlex
 import subprocess
 
 import bot.dummy
-import lib.roark.exceptions
+import oth.roark.exceptions
 
 class process(bot.dummy.dummy):
     def __init__(self):
@@ -54,10 +54,10 @@ class process(bot.dummy.dummy):
                 response = {'pid': pid,
                             'acknowledge': True}
             else:
-                raise lib.roark.exceptions.CommandException("Invalid command.", None)
+                raise oth.roark.exceptions.CommandException("Invalid command.", None)
         except KeyError as e:
-            raise lib.roark.exceptions.CommandException("PID {pid} not registered.".format(pid=path[1]), str(e))
+            raise oth.roark.exceptions.CommandException("PID {pid} not registered.".format(pid=path[1]), str(e))
         except subprocess.TimeoutExpired as e:
-            raise lib.roark.exceptions.CommandException("PID {pid} hasn't responded in 1 second.".format(pid=path[1]), str(e))
+            raise oth.roark.exceptions.CommandException("PID {pid} hasn't responded in 1 second.".format(pid=path[1]), str(e))
         else:
             return response

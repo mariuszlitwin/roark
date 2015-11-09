@@ -4,7 +4,7 @@
 import requests
 
 import bot.dummy
-import lib.roark.exceptions
+import oth.roark.exceptions
 
 class http(bot.dummy.dummy):
     def __init__(self):
@@ -26,8 +26,8 @@ class http(bot.dummy.dummy):
             elif len(path) == 1 and query['command'] == 'GET':
                 response = {'cookies': self.session.cookies.get_dict()}
             else:
-                raise lib.roark.exceptions.CommandException("Invalid command.", None)
+                raise oth.roark.exceptions.CommandException("Invalid command.", None)
         except requests.exceptions.RequestException as e:
-            raise lib.roark.exceptions.CommandException("Sending HTTP request failed.", str(e))
+            raise oth.roark.exceptions.CommandException("Sending HTTP request failed.", str(e))
         return response
         

@@ -7,7 +7,7 @@ from http.server import BaseHTTPRequestHandler
 
 import medium
 
-from lib.roark.exceptions import BotException, CommandException, AccessException
+from oth.roark.exceptions import BotException, CommandException, AccessException
 
 class RestAPIHandler(BaseHTTPRequestHandler, medium.dummy.dummy):
     error_content_type = 'text/json;charset=utf-8'

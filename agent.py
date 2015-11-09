@@ -5,10 +5,11 @@ from datetime import datetime
 from http.server import HTTPServer
 
 import lib.roark.hypervisor as roark_hypervisor
+
 from medium.RestAPI import RestAPIHandler
 import bot.dummy
+import bot.process
 import medium.dummy
-
 
 #TODO:
 # > rotating log of recent queries with timestamp, remote ip, queried url
@@ -22,6 +23,7 @@ if __name__ == '__main__':
     #roark_hypervisor.add_api_key(medium.dummy.dummy, 'dummykey')
     #roark_hypervisor.add_api_key(RestAPIHandler, 'RestAPIkey')
     roark_hypervisor.add_bot(RestAPIHandler, bot.dummy.dummy(), 'dummy')
+    roark_hypervisor.add_bot(RestAPIHandler, bot.process.process(), 'proc')
     
     server = HTTPServer(('localhost', 8080), RestAPIHandler)
     print('Starting server, use <Ctrl-C> to stop')

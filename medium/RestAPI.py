@@ -21,7 +21,6 @@ class RestAPIHandler(BaseHTTPRequestHandler, medium.dummy.dummy):
         
         if '?' in self.path:
             (params['path'], params['query']) = self.path.split('?')[:2]
-            params['path'] = params['path'].strip('/').split('/')
             params['query'] = urllib.parse.parse_qs(params['query'],
                                                   keep_blank_values=True)
             for key in params['query']:
@@ -29,6 +28,7 @@ class RestAPIHandler(BaseHTTPRequestHandler, medium.dummy.dummy):
                     params['query'][key] = params['query'][key][0]
         else:
             (params['path'], params['query']) = (self.path, dict())
+        params['path'] = params['path'].strip('/').split('/')
     
         payload = None
         payload_length = int(self.headers.get('Content-Length', failobj='0'))
@@ -42,7 +42,7 @@ class RestAPIHandler(BaseHTTPRequestHandler, medium.dummy.dummy):
                 
         params['query']['command'] = self.command
         
-        self.check_access(params['query']['access_token'])
+        self.check_access(params['query'].get('access_token', ''))
         
         return params
         

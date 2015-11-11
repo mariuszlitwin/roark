@@ -12,6 +12,7 @@ from medium.RestAPI import RestAPIHandler
 import bot.dummy
 import bot.process
 import bot.http
+import bot.fs
 
 #TODO:
 # > rotating log of recent queries with timestamp, remote ip, queried url
@@ -27,7 +28,8 @@ if __name__ == '__main__':
     roark_hypervisor.add_bot(RestAPIHandler, bot.dummy.dummy(), 'dummy')
     roark_hypervisor.add_bot(RestAPIHandler, bot.process.process(), 'process')
     roark_hypervisor.add_bot(RestAPIHandler, bot.http.http(), 'http')
+    roark_hypervisor.add_bot(RestAPIHandler, bot.fs.fs(), 'fs')
     
     server = HTTPServer(('localhost', 8080), RestAPIHandler)
-    print('Starting server, use <Ctrl-C> to stop')
+    print('Starting server on localhost:8080, use <Ctrl-C> to stop')
     server.serve_forever()

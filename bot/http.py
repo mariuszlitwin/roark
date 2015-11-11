@@ -30,4 +30,3 @@ class http(bot.dummy.dummy):
         except requests.exceptions.RequestException as e:
             raise oth.roark.exceptions.CommandException("Sending HTTP request failed.", str(e))
         return response
-        

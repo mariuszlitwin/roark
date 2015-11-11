@@ -90,6 +90,9 @@ class RestAPIHandler(BaseHTTPRequestHandler, medium.dummy.dummy):
                             message=e.message,
                             explain=e.explanation)
             return False
+        except Exception as e:
+            self.send_error(code=500,
+                            message=str(e))
         else:
             return self.do_HEAD(params=params, response=response)
             

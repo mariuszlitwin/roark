@@ -14,16 +14,17 @@ class process(bot.dummy.dummy):
     def request(self, path, query):
         response = None
         try:
-            if len(path) == 1 and query['command'] == 'POST' and 'command_line' in query:
+            if len(path) == 1 and query['command'] == 'POST' and \
+               'command_line' in query:
                 command_line = shlex.split(query['command_line'])
                 p = subprocess.Popen(command_line,
                                      stdout=subprocess.PIPE,
-                                     stderr=subprocess.PIPE)
+                                     stderr=subprocess.PIPE,
+                                     shell=('shell' in query))
                 self.tracked_process[p.pid] = p
                 
                 response = {'pid': p.pid}
             elif len(path) == 1 and query['command'] == 'GET':
-                
                 response = {'process': dict(
                                             zip(
                                                 self.tracked_process.keys(),
@@ -33,6 +34,7 @@ class process(bot.dummy.dummy):
             elif len(path) == 2 and query['command'] == 'GET':
                 pid = int(path[1])
                 (outs, errs) = self.tracked_process[pid].communicate(timeout=1)
+                (outs, errs) = (outs.decode('utf-8'), errs.decode('utf-8'))
                 response = {'pid': pid,
                             'stdout': outs,
                             'stderr': errs,
@@ -41,9 +43,8 @@ class process(bot.dummy.dummy):
                 pid = int(path[1])
                 if 'signal' in query:
                     self.tracked_process[pid].send_signal(query['signal'])
-                (outs, errs) = self.tracked_process[pid].communicate(input=query.get('input', 
-                                                                                     None),
-                                                                         timeout=1)
+                (outs, errs) = self.tracked_process[pid].communicate(input=query.get('input', None),
+                                                                     timeout=1)
                 response = {'pid': pid,
                             'stdout': outs,
                             'stderr': errs,

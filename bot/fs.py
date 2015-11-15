@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 # -*- encoding: UTF-8 -*-
 
+import os, os.path
+
 import bot.dummy
 import oth.roark.exceptions
 
@@ -18,3 +20,4 @@ class fs(bot.dummy.dummy):
         except OSError as e:
             raise oth.roark.exceptions.CommandException("File cannot be opened.", str(e))
         return response
+    
